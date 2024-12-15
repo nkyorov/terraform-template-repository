@@ -1,0 +1,15 @@
+formatter: markdown
+output:
+  file: "README.md"
+sort:
+  enabled: true
+content: |-
+  # Header 1
+  ## Header 2
+  Add an example defined in dedicated directory
+  ```hcl
+  {{ include "examples/.gitkeep" }}
+  ```
+  {{ .Inputs }}
+
+  {{ .Outputs }}
