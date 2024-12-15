@@ -1,4 +1,4 @@
-name: Terraform Plan
+name: Terraform - Plan
 
 on:
   workflow_call:
@@ -45,6 +45,15 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.tf_version }}
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
 
       - name: Initialize Terraform
         run: |
