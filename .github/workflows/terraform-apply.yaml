@@ -17,6 +17,9 @@ on:
       plan_file_name:
         required: true
         type: string
+      backend_file:
+        required: false
+        type: string
       var_file:
         required: false
         type: string
@@ -28,7 +31,7 @@ jobs:
     environment: ${{ inputs.gh_environment }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Azure login
         uses: azure/login@v2
@@ -42,10 +45,20 @@ jobs:
         with:
           terraform_version: ${{ inputs.tf_version }}
 
+      - name: Set Azure Environment Variables
+        run: |
+          echo "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+
       - name: Initialize Terraform
         run: |
           set -x
-          terraform init -input=false
+          if [ -n "${{ inputs.backend_file }}" ]; then
+            terraform init -backend-config=${{ inputs.backend_file }}
+          else
+            terraform init
+          fi
         working-directory: ${{ inputs.working_directory }}
 
       - name: Download Terraform plan

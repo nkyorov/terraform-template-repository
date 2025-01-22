@@ -1,0 +1,61 @@
+name: Terraform - CI/CD
+
+on:
+  workflow_call:
+    inputs:
+      tf_version:
+        description: 'Terraform version'
+        required: false
+        default: 'latest'
+        type: string
+      working_directory:
+        description: 'Working directory'
+        required: true
+        type: string
+      gh_environment:
+        description: 'GitHub environment'
+        required: false
+        type: string
+        default: null
+      plan_file_name:
+        description: 'Terraform plan file name'
+        required: false
+        default: 'terraform.tfplan'
+        type: string
+      var_file:
+        description: 'Terraform variables file'
+        required: false
+        default: ''
+        type: string
+      backend_file:
+        required: false
+        type: string
+      command_option_args:
+        description: 'Terraform command options'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  plan:
+    uses: ./.github/workflows/terraform-plan.yaml
+    secrets: inherit
+    with:
+      gh_environment: ${{ inputs.gh_environment }}
+      working_directory: ${{ inputs.working_directory }}
+      plan_file_name: ${{ inputs.plan_file_name }}
+      var_file: ${{ inputs.var_file }}
+      backend_file: ${{ inputs.backend_file }}
+      command_option_args: ${{ inputs.command_option_args }}
+
+  apply:
+    needs: [plan]
+    if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/release/')
+    uses: ./.github/workflows/terraform-apply.yaml
+    secrets: inherit
+    with:
+      gh_environment: ${{ inputs.gh_environment }}
+      working_directory: ${{ inputs.working_directory }}
+      plan_file_name: ${{ inputs.plan_file_name }}
+      var_file: ${{ inputs.var_file }}
+      backend_file: ${{ inputs.backend_file }}

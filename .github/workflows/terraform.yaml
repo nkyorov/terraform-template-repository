@@ -1,0 +1,26 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  actions: read
+  security-events: write
+
+jobs:
+  terraform:
+    name: Terraform CI/CD
+    uses: ./.github/workflows/terraform-cicd.yaml
+    secrets: inherit
+    with:
+      tf_version: 'latest'
+      working_directory: '<path-to-working-directory>'
+      gh_environment: '<your-github-environment>'
+      plan_file_name: 'terraform.tfplan'
+      var_file: '<path-to-var-file>'
+      backend_file: '<path-to-backend-config>'
